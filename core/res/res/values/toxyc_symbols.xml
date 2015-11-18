@@ -112,7 +112,7 @@
   <java-symbol type="integer" name="config_oneFingerSwipeDownKeyCode" />
   <java-symbol type="integer" name="config_oneFingerSwipeLeftKeyCode" />
   <java-symbol type="integer" name="config_twoFingerSwipeKeyCode" />
-  
+
   <java-symbol type="integer" name="config_doubleTapDefault" />
   <java-symbol type="integer" name="config_drawVDefault" />
   <java-symbol type="integer" name="config_drawInverseVDefault" />
@@ -135,5 +135,9 @@
   -->
   <java-symbol type="string" name="config_vendorBiometricsDescriptor" />
   <java-symbol type="integer" name="config_vendorBiometricsTransactionId" />
+  
+  <!-- Notification Volume Stream -->
+  <java-symbol type="drawable" name="ic_audio_notification_new" />
+  <java-symbol type="drawable" name="ic_audio_notification_mute_new" />
 
 </resources>
