@@ -4142,6 +4142,12 @@ public final class Settings {
          */
         public static final String FINGERPRINT_GESTURES_SWIPE_LEFT = "fingerprint_gestures_swipe_left";
 
+        /** Whether to skip music track with volume rocker
+        /**
+         * @hide
+         */
+        public static final String VOLUME_BUTTON_MUSIC_CONTROL = "volume_button_music_control";
+
         /**
          * Controls whether swipe right fingerprint gesture is enabled.
          * @hide
@@ -4447,6 +4453,7 @@ public final class Settings {
             PRIVATE_SETTINGS.add(KEY_CAMERA_LONG_PRESS_ACTION);
             PRIVATE_SETTINGS.add(KEY_CAMERA_DOUBLE_TAP_ACTION);
             PRIVATE_SETTINGS.add(SWAP_VOLUME_BUTTONS);
+            PRIVATE_SETTINGS.add(VOLUME_BUTTON_MUSIC_CONTROL);
         }
 
         /**
