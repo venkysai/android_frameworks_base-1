@@ -1413,6 +1413,17 @@ public class ApplicationsState {
         }
     };
 
+    public static final AppFilter FILTER_COLOR_MANAGER = new AppFilter() {
+        public void init() {
+        }
+
+        @Override
+        public boolean filterApp(AppEntry entry) {
+            return !((entry.info.metaData != null) &&
+                    (entry.info.metaData.getString("Color_manager") != null));
+        }
+    };
+
     public static final AppFilter FILTER_WORK = new AppFilter() {
         private int mCurrentUser;
 

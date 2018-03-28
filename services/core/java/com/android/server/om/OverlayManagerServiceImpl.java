@@ -55,6 +55,8 @@ final class OverlayManagerServiceImpl {
     private final OverlayManagerSettings mSettings;
     private final Set<String> mDefaultOverlays;
     private final OverlayChangeListener mListener;
+    
+    static final String ACCENT_PACKAGE = "com.toxyc.accent";
 
     OverlayManagerServiceImpl(@NonNull final PackageManagerHelper packageManager,
             @NonNull final IdmapManager idmapManager,
@@ -450,9 +452,11 @@ final class OverlayManagerServiceImpl {
                     continue;
                 }
 
-                // Disable the overlay.
-                modified |= mSettings.setEnabled(disabledOverlayPackageName, userId, false);
-                modified |= updateState(targetPackage, disabledOverlayPackageInfo, userId);
+                if (disabledOverlayPackageName.startsWith(ACCENT_PACKAGE)) {
+                    // Disable the overlay.
+                    modified |= mSettings.setEnabled(disabledOverlayPackageName, userId, false);
+                    modified |= updateState(targetPackage, disabledOverlayPackageInfo, userId);
+                }
             }
 
             // Enable the selected overlay.
