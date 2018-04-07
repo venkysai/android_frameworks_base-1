@@ -51,4 +51,10 @@
   <java-symbol type="string" name="global_restart_confirm_message" />
   <java-symbol type="string" name="global_restart_recovery_confirm_message" />
   <java-symbol type="string" name="global_restart_bootloader_confirm_message" />
+
+  <!-- Button Brightness -->
+  <java-symbol type="integer" name="config_buttonBrightnessSettingMinimum" />
+  <java-symbol type="integer" name="config_buttonBrightnessSettingMaximum" />
+  <java-symbol type="integer" name="config_buttonBrightnessSettingDefault" />
+
 </resources>
