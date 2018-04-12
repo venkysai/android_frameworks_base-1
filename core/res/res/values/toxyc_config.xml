@@ -93,6 +93,9 @@
     <integer name="config_longPressOnCameraKeyBehavior">0</integer>
     <integer name="config_doubleTapOnCameraKeyBehavior">0</integer>
 
+    <!-- Determines whether the device supports fingerprint navigation -->
+    <bool name="config_supportsFPNavigation">false</bool>
+
     <!-- Internal default to navigation bar value -->
     <bool name="config_defaultToNavigationBar">true</bool>
 
