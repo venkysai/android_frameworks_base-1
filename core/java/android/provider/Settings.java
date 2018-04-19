@@ -4099,12 +4099,6 @@ public final class Settings {
          */
 
         /**
-         * Controls whether fingerprint gestures are enabled.
-         * @hide
-         */
-        public static final String FINGERPRINT_GESTURES_ENABLED = "fingerprint_gestures_enabled";
-
-        /**
          * Controls whether double tap fingerprint gesture is enabled.
          * @hide
          */
@@ -4281,7 +4275,6 @@ public final class Settings {
             NOTIFICATION_SOUND,
             ACCELEROMETER_ROTATION,
             SHOW_BATTERY_PERCENT,
-            FINGERPRINT_GESTURES_ENABLED,
             FINGERPRINT_GESTURES_DOUBLE_TAP,
             FINGERPRINT_GESTURES_LONGPRESS,
             FINGERPRINT_GESTURES_SWIPE_UP,
