@@ -6747,10 +6747,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     + ", canApplyCustomPolicy = " + canApplyCustomPolicy(keyCode));
         }
 
-        if (interactive) {
-            if (mFPKeyHandler != null && mFPKeyHandler.handleKeyEvent(event)) {
-                return 0;
-            }
+        if (mFPKeyHandler != null && mFPKeyHandler.handleKeyEvent(event)) {
+            return 0;
         }
 
         /**
