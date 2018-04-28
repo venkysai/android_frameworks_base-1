@@ -847,6 +847,10 @@ public class StatusBar extends SystemUI implements DemoMode,
     private ScreenLifecycle mScreenLifecycle;
     @VisibleForTesting WakefulnessLifecycle mWakefulnessLifecycle;
 
+    // Force black and toxyc theme
+    private boolean mForceBlackTheme;
+    private boolean mForceToxycTheme;
+
     private void recycleAllVisibilityObjects(ArraySet<NotificationVisibility> array) {
         final int N = array.size();
         for (int i = 0 ; i < N; i++) {
@@ -895,6 +899,12 @@ public class StatusBar extends SystemUI implements DemoMode,
 
         mColorExtractor = Dependency.get(SysuiColorExtractor.class);
         mColorExtractor.addOnColorsChangedListener(this);
+
+        mForceBlackTheme = LineageSettings.System.getInt(mContext.getContentResolver(),
+                LineageSettings.System.BERRY_FORCE_BLACK, 0) == 1;
+
+        mForceToxycTheme = LineageSettings.System.getInt(mContext.getContentResolver(),
+                LineageSettings.System.BERRY_FORCE_TOXYC, 0) == 1;
 
         mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
 
@@ -3027,15 +3037,31 @@ public class StatusBar extends SystemUI implements DemoMode,
         updateTheme();
     }
 
-    public boolean isUsingDarkTheme() {
-        OverlayInfo systemuiThemeInfo = null;
+        public boolean isUsingDarkAndBlackOrToxycTheme() {
+        OverlayInfo systemuiThemeInfoDark = null;
+        OverlayInfo systemuiThemeInfoBlack = null;
+        OverlayInfo systemuiThemeInfoToxyc = null;
         try {
-            systemuiThemeInfo = mOverlayManager.getOverlayInfo("org.lineageos.overlay.dark",
+            systemuiThemeInfoDark = mOverlayManager.getOverlayInfo("org.lineageos.overlay.dark",
                     mCurrentUserId);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-        return systemuiThemeInfo != null && systemuiThemeInfo.isEnabled();
+        try {
+            systemuiThemeInfoBlack = mOverlayManager.getOverlayInfo("org.lineageos.overlay.black",
+                    mCurrentUserId);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        try {
+            systemuiThemeInfoToxyc = mOverlayManager.getOverlayInfo("org.lineageos.overlay.toxyc",
+                    mCurrentUserId);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        return (systemuiThemeInfoDark != null && systemuiThemeInfoDark.isEnabled()) || 
+        (systemuiThemeInfoBlack != null && systemuiThemeInfoBlack.isEnabled()) || 
+        (systemuiThemeInfoToxyc != null && systemuiThemeInfoToxyc.isEnabled());
     }
 
     private boolean isLiveDisplayNightModeOn() {
@@ -3845,7 +3871,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         if (mOverlayManager == null) {
             pw.println("    overlay manager not initialized!");
         } else {
-            pw.println("    dark overlay on: " + isUsingDarkTheme());
+            pw.println("    dark overlay on: " + isUsingDarkAndBlackOrToxycTheme());
         }
         final boolean lightWpTheme = mContext.getThemeResId() == R.style.Theme_SystemUI_Light;
         pw.println("    light wallpaper theme: " + lightWpTheme);
@@ -4968,6 +4994,12 @@ public class StatusBar extends SystemUI implements DemoMode,
                 .getWallpaperColors(WallpaperManager.FLAG_SYSTEM);
         final boolean useDarkTheme;
 
+        // force black and toxyc theme
+        boolean forceBlackTheme = LineageSettings.System.getInt(mContext.getContentResolver(),
+                LineageSettings.System.BERRY_FORCE_BLACK, 0) == 1;
+        boolean forceToxycTheme = LineageSettings.System.getInt(mContext.getContentResolver(),
+                LineageSettings.System.BERRY_FORCE_TOXYC, 0) == 1;
+
         switch (globalStyleSetting) {
             case 1:
                 useDarkTheme = isLiveDisplayNightModeOn();
@@ -4984,10 +5016,28 @@ public class StatusBar extends SystemUI implements DemoMode,
                 break;
         }
 
-        if (isUsingDarkTheme() != useDarkTheme) {
+        if (isUsingDarkAndBlackOrToxycTheme() != useDarkTheme || mForceBlackTheme != forceBlackTheme || mForceToxycTheme != forceToxycTheme) {
+            mForceBlackTheme = forceBlackTheme;
+            mForceToxycTheme = forceToxycTheme;
+            boolean darkThemeEnabled = useDarkTheme;
+            boolean blackThemeEnabled = forceBlackTheme && useDarkTheme;
+            boolean toxycThemeEnabled = forceToxycTheme && useDarkTheme;
+            if (blackThemeEnabled){
+                darkThemeEnabled = false;
+            }
+            if (toxycThemeEnabled){
+                darkThemeEnabled = false;
+            }
             try {
+                // Dark
                 mOverlayManager.setEnabled("org.lineageos.overlay.dark",
-                        useDarkTheme, mCurrentUserId);
+                        darkThemeEnabled, mCurrentUserId);
+                // Black
+                mOverlayManager.setEnabled("org.lineageos.overlay.black",
+                        blackThemeEnabled, mCurrentUserId);
+                // Toxyc
+                mOverlayManager.setEnabled("org.lineageos.overlay.toxyc",
+                        toxycThemeEnabled, mCurrentUserId);
             } catch (RemoteException e) {
                 Log.w(TAG, "Can't change theme", e);
             }
@@ -6179,12 +6229,24 @@ public class StatusBar extends SystemUI implements DemoMode,
             resolver.registerContentObserver(Settings.Secure.getUriFor(
                     Settings.Secure.NAVBAR_THEME),
                     false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(LineageSettings.System.getUriFor(
+                    LineageSettings.System.BERRY_FORCE_BLACK),
+                    true,this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(LineageSettings.System.getUriFor(
+                    LineageSettings.System.BERRY_FORCE_TOXYC),
+                    true,this, UserHandle.USER_ALL);
         }
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
+             if (uri.equals (LineageSettings.System.getUriFor(
+                    LineageSettings.System.BERRY_FORCE_BLACK)) ||
+                    uri.equals (LineageSettings.System.getUriFor(
+                    LineageSettings.System.BERRY_FORCE_TOXYC))) {
+                  updateTheme();
             update();
-        }
+             }
+         }
 
         public void update() {
             updateNavbarTheme();
