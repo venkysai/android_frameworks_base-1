@@ -159,6 +159,7 @@ import android.hardware.hdmi.HdmiPlaybackClient.OneTouchPlayCallback;
 import android.hardware.input.InputManager;
 import android.hardware.input.InputManagerInternal;
 import android.hardware.power.V1_0.PowerHint;
+import android.hardware.vendor.ExtBiometricsFingerprint;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.AudioSystem;
@@ -259,6 +260,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.Throwable;
 import java.util.List;
 import java.lang.reflect.Constructor;
 
@@ -448,7 +450,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
      */
     private final Object mLock = new Object();
 
-    Context mContext;
+    static Context mContext;
     IWindowManager mWindowManager;
     WindowManagerFuncs mWindowManagerFuncs;
     WindowManagerInternal mWindowManagerInternal;
@@ -901,6 +903,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private static final int MSG_REQUEST_TRANSIENT_BARS_ARG_STATUS = 0;
     private static final int MSG_REQUEST_TRANSIENT_BARS_ARG_NAVIGATION = 1;
 
+    private static ExtBiometricsFingerprint sExtBiometricsFingerprint;
+
     private class PolicyHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
@@ -1101,14 +1105,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         ContentResolver resolver = mContext.getContentResolver();
         final Resources res = mContext.getResources();
         mSupportsFPNavigation = res.getBoolean(com.android.internal.R.bool.config_supportsFPNavigation);
-        int navBarSetting = Settings.System.getIntForUser(resolver,
-                        Settings.System.NAVIGATION_BAR_ENABLED, 1, UserHandle.USER_CURRENT);
+        boolean useNavBar = Settings.System.getIntForUser(resolver,
+                    Settings.System.NAVIGATION_BAR_ENABLED, 1, UserHandle.USER_CURRENT) != 0;
         if (mSupportsFPNavigation) {
-            if (navBarSetting != 0) {
-                SystemProperties.set("sys.fpnav.enabled", "0");
-            } else {
-                SystemProperties.set("sys.fpnav.enabled", "1");
+            try {
+                sExtBiometricsFingerprint = new ExtBiometricsFingerprint(mContext);
+            } catch (Throwable t) {
+                // Ignore, IExtBiometricsFingerprint is not available.
             }
+            sExtBiometricsFingerprint.sendCmdToHal(useNavBar
+                    ? ExtBiometricsFingerprint.MSG_NAV_DISABLE
+                    : ExtBiometricsFingerprint.MSG_NAV_ENABLE);
+            Log.d(TAG, "Sending FP Navigation Command to HAL");
         }
     }
 
