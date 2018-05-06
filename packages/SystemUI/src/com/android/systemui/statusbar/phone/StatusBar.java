@@ -2903,6 +2903,10 @@ public class StatusBar extends SystemUI implements DemoMode,
         return ColorManagerHelper.isUsingBlackTheme(mOverlayManager, mCurrentUserId);
     }
 
+    public boolean isUsingToxycTheme() {
+        return ColorManagerHelper.isUsingToxycTheme(mOverlayManager, mCurrentUserId);
+    }
+
     @Nullable
     public View getAmbientIndicationContainer() {
         return mAmbientIndicationContainer;
@@ -3596,6 +3600,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         } else {
             pw.println("    dark overlay on: " + isUsingDarkTheme());
             pw.println("    black overlay on: " + isUsingBlackTheme());
+            pw.println("    black overlay on: " + isUsingToxycTheme());
         }
         final boolean lightWpTheme = mContext.getThemeResId() == R.style.Theme_SystemUI_Light;
         pw.println("    light wallpaper theme: " + lightWpTheme);
@@ -4699,6 +4704,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                 Settings.Secure.DEVICE_THEME, 0, mCurrentUserId);
         boolean useBlackTheme = false;
         boolean useDarkTheme = false;
+        boolean useToxycTheme = false;
         if (userThemeSetting == 0) {
             // The system wallpaper defines if QS should be light or dark.
             WallpaperColors systemColors = mColorExtractor
@@ -4708,6 +4714,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         } else {
             useDarkTheme = userThemeSetting == 2;
             useBlackTheme = userThemeSetting == 3;
+            useToxycTheme = userThemeSetting == 4;
         }
         if (isUsingDarkTheme() != useDarkTheme) {
             for (String darkTheme: ColorManagerHelper.DARK_THEME) {
@@ -4721,6 +4728,14 @@ public class StatusBar extends SystemUI implements DemoMode,
             for (String blackTheme: ColorManagerHelper.BLACK_THEME) {
                 try {
                     mOverlayManager.setEnabled(blackTheme, useBlackTheme, mCurrentUserId);
+                } catch (RemoteException e) {
+                }
+            }
+        }
+        if (isUsingToxycTheme() != useToxycTheme) {
+            for (String toxycTheme: ColorManagerHelper.TOXYC_THEME) {
+                try {
+                    mOverlayManager.setEnabled(toxycTheme, useToxycTheme, mCurrentUserId);
                 } catch (RemoteException e) {
                 }
             }
