@@ -2907,6 +2907,10 @@ public class StatusBar extends SystemUI implements DemoMode,
         return ColorManagerHelper.isUsingToxycTheme(mOverlayManager, mCurrentUserId);
     }
 
+    public boolean isUsingHazardTheme() {
+        return ColorManagerHelper.isUsingHazardTheme(mOverlayManager, mCurrentUserId);
+    }
+
     @Nullable
     public View getAmbientIndicationContainer() {
         return mAmbientIndicationContainer;
@@ -3601,6 +3605,7 @@ public class StatusBar extends SystemUI implements DemoMode,
             pw.println("    dark overlay on: " + isUsingDarkTheme());
             pw.println("    black overlay on: " + isUsingBlackTheme());
             pw.println("    black overlay on: " + isUsingToxycTheme());
+            pw.println("    black overlay on: " + isUsingHazardTheme());
         }
         final boolean lightWpTheme = mContext.getThemeResId() == R.style.Theme_SystemUI_Light;
         pw.println("    light wallpaper theme: " + lightWpTheme);
@@ -4705,6 +4710,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         boolean useBlackTheme = false;
         boolean useDarkTheme = false;
         boolean useToxycTheme = false;
+        boolean useHazardTheme = false;
         if (userThemeSetting == 0) {
             // The system wallpaper defines if QS should be light or dark.
             WallpaperColors systemColors = mColorExtractor
@@ -4715,6 +4721,7 @@ public class StatusBar extends SystemUI implements DemoMode,
             useDarkTheme = userThemeSetting == 2;
             useBlackTheme = userThemeSetting == 3;
             useToxycTheme = userThemeSetting == 4;
+            useHazardTheme = userThemeSetting == 5;
         }
         if (isUsingDarkTheme() != useDarkTheme) {
             for (String darkTheme: ColorManagerHelper.DARK_THEME) {
@@ -4736,6 +4743,14 @@ public class StatusBar extends SystemUI implements DemoMode,
             for (String toxycTheme: ColorManagerHelper.TOXYC_THEME) {
                 try {
                     mOverlayManager.setEnabled(toxycTheme, useToxycTheme, mCurrentUserId);
+                } catch (RemoteException e) {
+                }
+            }
+        }
+        if (isUsingHazardTheme() != useHazardTheme) {
+            for (String hazardTheme: ColorManagerHelper.HAZARD_THEME) {
+                try {
+                    mOverlayManager.setEnabled(hazardTheme, useHazardTheme, mCurrentUserId);
                 } catch (RemoteException e) {
                 }
             }
